@@ -15,7 +15,7 @@ def _load_stations():
     response.raise_for_status()
     data = response.json()
     for est in data.get("listaEstacionsMeteo", []):
-        name = est.get("nome", "")
+        name = est.get("estacion", "")
         est_id = est.get("idEst")
         if name and est_id:
             _station_cache[name.lower()] = str(est_id)
