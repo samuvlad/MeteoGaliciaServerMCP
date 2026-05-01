@@ -6,14 +6,23 @@ mcp = FastMCP("Mi Servidor MCP")
 STATION_LIST_URL = "https://servizos.meteogalicia.gal/mgrss/observacion/listaEstacionsMeteo.action"
 DAILY_DATA_URL = "https://servizos.meteogalicia.gal/mgrss/observacion/datosDiariosEstacionsMeteo.action"
 
-def get_station_id(station_name: str) -> str | None:
+_station_cache: dict[str, str] = {}
+
+def _load_stations():
+    if _station_cache:
+        return
     response = requests.get(STATION_LIST_URL)
     response.raise_for_status()
     data = response.json()
     for est in data.get("listaEstacionsMeteo", []):
-        if station_name.lower() in est.get("nome", "").lower():
-            return est.get("idEst")
-    return None
+        name = est.get("nome", "")
+        est_id = est.get("idEst")
+        if name and est_id:
+            _station_cache[name.lower()] = str(est_id)
+
+def get_station_id(station_name: str) -> str | None:
+    _load_stations()
+    return _station_cache.get(station_name.lower())
 
 @mcp.tool()
 def get_info(station: str, start_date: str, end_date: str) -> dict:
