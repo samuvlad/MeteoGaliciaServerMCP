@@ -16,7 +16,7 @@ def _load_stations():
     data = response.json()
     for est in data.get("listaEstacionsMeteo", []):
         name = est.get("estacion", "")
-        est_id = est.get("idEst")
+        est_id = est.get("idEstacion")
         if name and est_id:
             _station_cache[name.lower()] = str(est_id)
 
